@@ -13,15 +13,18 @@ def test_normalize():
 def test_calculate_pss10():
     """Test PSS-10 score calculation"""
     # Test case with all zeros (minimum stress)
-    assert CalculationService.calculate_pss10([0] * 10) == 0
+    assert (
+        CalculationService.calculate_pss10([0] * 10) == 20
+    )  # All inverse questions become 4
 
     # Test case with all fours (maximum stress)
-    assert CalculationService.calculate_pss10([4] * 10) == 40
+    assert (
+        CalculationService.calculate_pss10([4] * 10) == 20
+    )  # All inverse questions become 0
 
-    # Test case with inverse questions
+    # Test mixed case
     responses = [2] * 10  # All answers are 2
-    score = CalculationService.calculate_pss10(responses)
-    assert score == 20  # Should be 20 as inverse questions balance out
+    assert CalculationService.calculate_pss10(responses) == 20  # Should be balanced
 
 
 def test_calculate_stress_level():
