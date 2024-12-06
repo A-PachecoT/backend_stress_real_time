@@ -1,6 +1,7 @@
 def normalizar(valor, minimo, maximo):
     return (valor - minimo) / (maximo - minimo)
 
+
 def calcular_ip(par, pesos, limites):
     # Pesos y límites ajustados para tres parámetros
     w1, w2, w3 = pesos
@@ -17,8 +18,8 @@ def calcular_ip(par, pesos, limites):
 
 
 # Pesos y límites
-pesos = [0.5, 0.3, 0.2]  
-limites = [(50, 120), (35.0, 38.0), (0, 40)]  
+pesos = [0.5, 0.3, 0.2]
+limites = [(50, 120), (35.0, 38.0), (0, 40)]
 
 
 # Ejemplo
