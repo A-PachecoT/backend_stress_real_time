@@ -6,14 +6,28 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
 from app.core.database import Base, get_db
+from app.core.config import Settings, get_settings
 from app.main import app
 
-# Use SQLite for testing
-TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+
+class TestSettings(Settings):
+    # Override database settings for testing
+    @property
+    def ASYNC_DATABASE_URL(self) -> str:
+        return "sqlite+aiosqlite:///:memory:"
+
+
+# Override settings for testing
+def get_test_settings() -> Settings:
+    return TestSettings()
+
+
+app.dependency_overrides[get_settings] = get_test_settings
 
 engine = create_async_engine(
-    TEST_DATABASE_URL,
+    get_test_settings().ASYNC_DATABASE_URL,
     poolclass=NullPool,
+    connect_args={"check_same_thread": False},  # Needed for SQLite
 )
 
 TestingSessionLocal = sessionmaker(
