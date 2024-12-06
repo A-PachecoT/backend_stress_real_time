@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - DATABASE_URL=mysql://user:password@db:3306/sensores_db
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-here}
+      - ENVIRONMENT=development
+    depends_on:
+      - db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=sensores_db
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=rootpassword
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data: 
