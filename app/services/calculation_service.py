@@ -26,6 +26,9 @@ class CalculationService:
     @classmethod
     def calculate_pss10(cls, responses: List[int]) -> int:
         """Calculate PSS-10 score from responses"""
+        if len(responses) != 10:
+            raise ValueError("PSS-10 requires exactly 10 responses")
+
         total = 0
         for i, response in enumerate(responses):
             if i in cls.PSS10_INVERSE_QUESTIONS:
@@ -93,7 +96,7 @@ class CalculationService:
         # Calculate PSS-10 score if responses provided
         pss10_score = None
         stress_level = None
-        if pss10_responses:
+        if pss10_responses and len(pss10_responses) == 10:
             pss10_score = cls.calculate_pss10(pss10_responses)
             stress_level = cls.calculate_stress_level(pss10_score)
 
