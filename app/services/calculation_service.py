@@ -4,7 +4,7 @@ from datetime import datetime
 
 class CalculationService:
     # Constants from the scripts
-    PSS10_INVERSE_QUESTIONS = [3, 4, 6, 7, 9]  # 0-based indices
+    PSS10_INVERSE_QUESTIONS = [4, 5, 7, 8, 10]  # 1-based indices
     WEIGHTS = {
         "pss10": 0.3,
         "heart_rate": 0.25,
@@ -30,9 +30,11 @@ class CalculationService:
             raise ValueError("PSS-10 requires exactly 10 responses")
 
         total = 0
-        for i, response in enumerate(responses):
+        for i, response in enumerate(
+            responses, start=1
+        ):  # Start from 1 for 1-based indexing
             if i in cls.PSS10_INVERSE_QUESTIONS:
-                total += 4 - response  # Inverse scoring
+                total += 4 - response  # Inverse scoring (4 becomes 0, 0 becomes 4)
             else:
                 total += response
         return total
