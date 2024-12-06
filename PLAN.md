@@ -158,3 +158,75 @@ POST /api/v1/questions
 4. Add calculation services
 5. Test API security
 6. Frontend integration
+
+## Database Strategy
+
+### Current Database Setup
+- Production Database: AWS RDS MariaDB instance
+  - Host: stress-prueba1.cna4icyokmxm.us-east-2.rds.amazonaws.com
+  - Database: sensores_db
+
+### Development Database Strategy
+1. Local Development:
+   - Use Docker container with MariaDB
+   - Maintain schema parity with production
+   - Automated setup via docker-compose
+
+2. Testing Environment:
+   - Separate test database container
+   - Automated cleanup between test runs
+   - Mock data generation for testing
+
+### Database Migration Strategy
+1. Version Control:
+   - Use Alembic for migration management
+   - Track all schema changes in version control
+   - Automated migration testing in CI/CD
+
+2. Deployment Process:
+   - Backup before migrations
+   - Automated migration in deployment pipeline
+   - Rollback procedures
+
+### Existing Schema
+```sql
+CREATE TABLE `sensores` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `temperatura` float DEFAULT NULL,
+  `ritmo_cardiaco` float DEFAULT NULL,
+  `timestamp` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) NOT NULL UNIQUE,
+  `email` varchar(100) NOT NULL UNIQUE,
+  `hashed_password` varchar(255) NOT NULL,
+  `is_active` boolean DEFAULT true,
+  `created_at` timestamp DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+);
+```
+
+### Data Management
+1. Sensor Data:
+   - Implement data retention policies
+   - Regular archival of old data
+   - Data aggregation for analytics
+
+2. User Data:
+   - GDPR compliance
+   - Data encryption at rest
+   - Access audit logging
+
+### Backup Strategy
+1. Production (AWS RDS):
+   - Automated daily snapshots
+   - Point-in-time recovery enabled
+   - Cross-region backup replication
+
+2. Development:
+   - Local database dumps
+   - Docker volume backups
+   - Schema version tracking
