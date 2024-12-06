@@ -2,10 +2,12 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.pool import NullPool
 
-DATABASE_URL = "mysql+aiomysql://user:password@db:3306/sensores_db"
+from app.core.config import get_settings
+
+settings = get_settings()
 
 engine = create_async_engine(
-    DATABASE_URL,
+    settings.ASYNC_DATABASE_URL,
     echo=True,
     poolclass=NullPool,
 )
