@@ -16,7 +16,6 @@ pydantic-settings = "^2.1.0"
 python-dotenv = "^1.0.0"
 aiomysql = "^0.2.0"
 sqlalchemy = { extras = ["asyncio"], version = "^2.0.25" }
-alembic = "^1.13.1"
 email-validator = "^2.1.0.post1"
 
 [tool.poetry.group.dev.dependencies]
