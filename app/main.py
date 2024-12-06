@@ -2,6 +2,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.endpoints import auth, sensors, questions, results
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -27,6 +29,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include routers
+app.include_router(auth.router)
+app.include_router(sensors.router)
+app.include_router(questions.router)
+app.include_router(results.router)
 
 
 @app.get("/")
