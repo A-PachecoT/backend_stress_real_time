@@ -20,7 +20,6 @@ async def create_sensor_reading(
         temperatura=sensor_data.temperatura,
         ritmo_cardiaco=sensor_data.ritmo_cardiaco,
         indice_facial=sensor_data.indice_facial,
-        timestamp=datetime.now(),
     )
     db.add(new_sensor)
     await db.commit()

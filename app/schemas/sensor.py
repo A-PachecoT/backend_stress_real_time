@@ -6,7 +6,7 @@ from typing import Optional
 class SensorBase(BaseModel):
     temperatura: float = Field(..., description="Temperatura en grados Celsius")
     ritmo_cardiaco: float = Field(..., description="Ritmo cardiaco en BPM")
-    indice_facial: float = Field(..., description="Índice facial")
+    indice_facial: Optional[float] = Field(None, description="Índice facial")
 
 
 class SensorCreate(SensorBase):
