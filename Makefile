@@ -1,4 +1,4 @@
-.PHONY: build up down test logs clean help prod-build prod-up prod-down prod-logs dev debug
+.PHONY: build up down test logs clean help prod-build prod-up prod-down prod-logs dev debug migrate-up migrate-down migrate-create
 
 help:
 	@echo "Available commands:"
@@ -17,6 +17,10 @@ help:
 	@echo "  prod-down  - Stop production containers"
 	@echo "  prod-logs  - View production container logs"
 	@echo "  help    - Show this help message"
+	@echo "Database:"
+	@echo "  migrate-up - Upgrade database to the latest revision"
+	@echo "  migrate-down - Downgrade database to the previous revision"
+	@echo "  migrate-create - Create a new migration"
 
 build:
 	docker compose build
@@ -60,4 +64,13 @@ debug:
 	@echo "\n=== Container Logs ==="
 	docker compose logs
 	@echo "\n=== Health Check Status ==="
-	docker compose ps api --format "{{.Status}}" 
+	docker compose ps api --format "{{.Status}}"
+
+migrate-up:
+	alembic upgrade head
+
+migrate-down:
+	alembic downgrade -1
+
+migrate-create:
+	alembic revision -m "$(name)"

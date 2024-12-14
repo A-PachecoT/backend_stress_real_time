@@ -1,12 +1,13 @@
-from fastapi import APIRouter, HTTPException, status, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from typing import List
 from datetime import datetime
+from typing import List
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.models.question import QuestionResponse as QuestionResponseModel
-from app.schemas.question import QuestionResponse, QuestionResponseCreate, PSS10Result
+from app.schemas.question import PSS10Result, QuestionResponse, QuestionResponseCreate
 from app.services.calculation_service import CalculationService
 
 router = APIRouter(prefix="/api/v1/questions", tags=["questions"])
