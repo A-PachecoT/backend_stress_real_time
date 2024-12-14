@@ -1,57 +1,58 @@
-# Stress Monitoring System
+# StressMinder API
 
-A Python-based system for monitoring and analyzing stress levels using multiple physiological and behavioral parameters.
+A real-time stress monitoring and analysis system built with FastAPI that processes multiple physiological and behavioral parameters to assess stress levels.
 
-## Components
+## Overview
 
-### Data Collection
-- `insert_sensor_data.py`: Handles sensor data collection and database insertion
-  - Collects temperature and heart rate readings
-  - Supports manual and automated data collection
-  - Includes random data generation for testing
+StressMinder API provides a comprehensive stress analysis by combining:
+- Physiological sensors (temperature, heart rate)
+- Facial expression analysis
+- PSS-10 (Perceived Stress Scale) questionnaire responses
 
-### Data Processing
-- `scripts/1.preguntas.py`: PSS-10 (Perceived Stress Scale) questionnaire processing
-- `scripts/2.procesamiento.py`: Core stress index calculation
-- `scripts/3.normalizar.py`: Parameter normalization and partial index calculation
+## Key Features
 
-### Database Management
-- `db_explorer.py`: Database exploration and management tool
-  - Provides detailed database structure visualization
-  - Supports sample data viewing
-  - Shows foreign key relationships
+- **Real-time Monitoring**: Continuous collection and analysis of sensor data
+- **Multi-parameter Analysis**: Combined analysis of physical and psychological indicators
+- **Standardized Assessment**: Integration with PSS-10 questionnaire
+- **Stress Level Classification**: Automated stress level categorization (Low, Moderate, High)
 
-## Stress Index Calculation
+## Architecture
 
-The system calculates stress levels using multiple parameters:
-1. Physiological data (heart rate, temperature)
-2. PSS-10 questionnaire responses
-3. Angular velocity measurements
-4. Facial expression analysis
+The system calculates stress levels using:
+1. **Partial Indices (IP)**: Individual normalized measurements
+2. **Total Stress Index (ITE)**: Weighted combination of all parameters
 
-Parameters are normalized and weighted to produce:
-- IP (Partial Index): Individual measurement score
-- ITE (Total Stress Index): Aggregate stress score
+### Calculation Weights
+- Temperature: 10%
+- Heart Rate: 10%
+- Facial Expression: 40%
+- PSS-10 Score: 40%
 
-## Configuration
+## API Endpoints
 
-Database connection parameters:
-- Host: stress-prueba1.cna4icyokmxm.us-east-2.rds.amazonaws.com
-- Database: sensores_db
+- `/api/v1/sensors`: Sensor data collection
+- `/api/v1/questions`: PSS-10 questionnaire handling
+- `/api/v1/results`: Stress analysis results
+- `/api/v1/auth`: User authentication
 
-## Usage
+## Getting Started
 
-1. Data Collection: Run insert_sensor_data.py and follow the interactive menu to:
-   - Insert single sensor readings
-   - Generate multiple random readings
-   - Start continuous monitoring with custom intervals
+For development setup and contribution guidelines, please refer to [CONTRIBUTING.md](CONTRIBUTING.md).
 
-2. Database Exploration: Execute db_explorer.py to:
-   - View available databases
-   - Explore table structures
-   - Examine data relationships
+### Quick Start
 
-3. Stress Analysis: Use the processing scripts to:
-   - Process PSS-10 questionnaire responses
-   - Calculate normalized stress indices
-   - Generate stress level reports
+1. Clone the repository
+2. Copy `.env.example` to `.env` and configure
+3. Start the application:
+```bash
+make dev
+```
+
+## Documentation
+
+- API Documentation: `http://localhost:8000/docs`
+- ReDoc Interface: `http://localhost:8000/redoc`
+
+## License
+
+This project is licensed under the MIT License.
