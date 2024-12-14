@@ -8,30 +8,45 @@ from sqlalchemy.pool import NullPool
 from app.core.database import Base, get_db
 from app.core.config import Settings, get_settings
 from app.main import app
+from app.models.sensor import Sensor  # Import models to ensure they're registered
 
 
 class TestSettings(Settings):
-    # Override database settings for testing
+    # Override all database settings for testing
+    DB_HOST: str = ""
+    DB_USER: str = ""
+    DB_PASSWORD: str = ""
+    DB_NAME: str = ""
+    DB_PORT: int = 0
+
     @property
     def ASYNC_DATABASE_URL(self) -> str:
         return "sqlite+aiosqlite:///:memory:"
 
+    class Config:
+        case_sensitive = True
 
-# Override settings for testing
-def get_test_settings() -> Settings:
-    return TestSettings()
+
+# Create test settings instance
+test_settings = TestSettings()
+
+
+# Override settings before any database operations
+def get_test_settings():
+    return test_settings
 
 
 app.dependency_overrides[get_settings] = get_test_settings
 
-engine = create_async_engine(
-    get_test_settings().ASYNC_DATABASE_URL,
+# Create test engine with SQLite
+test_engine = create_async_engine(
+    test_settings.ASYNC_DATABASE_URL,
     poolclass=NullPool,
     connect_args={"check_same_thread": False},  # Needed for SQLite
 )
 
 TestingSessionLocal = sessionmaker(
-    engine,
+    test_engine,
     class_=AsyncSession,
     expire_on_commit=False,
 )
@@ -44,13 +59,17 @@ def anyio_backend():
 
 @pytest.fixture
 async def db() -> AsyncGenerator:
-    async with engine.begin() as conn:
+    # Create all tables
+    async with test_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
+    # Create session
     async with TestingSessionLocal() as session:
         yield session
 
-    async with engine.begin() as conn:
+    # Clean up
+    async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 
 
@@ -63,6 +82,8 @@ def client(db: AsyncSession) -> Generator:
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()
+    # Restore original settings after test
+    app.dependency_overrides[get_settings] = get_test_settings
 
 
 @pytest.fixture
