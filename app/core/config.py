@@ -1,4 +1,3 @@
-from pydantic_settings import BaseSettings
 from functools import lru_cache
 from typing import List
 import os
@@ -7,6 +6,8 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
+from pydantic_settings import BaseSettings
+
 
 class Settings(BaseSettings):
     # Environment settings
@@ -14,6 +15,7 @@ class Settings(BaseSettings):
     DEBUG: bool = os.getenv("DEBUG", "true").lower() == "true"
 
     # Database settings
+
     DB_HOST: str = os.getenv("DB_HOST", "localhost")
     DB_USER: str = os.getenv("DB_USER", "user")
     DB_PASSWORD: str = os.getenv("DB_PASSWORD", "password")

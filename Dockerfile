@@ -20,9 +20,6 @@ COPY pyproject.toml ./
 RUN poetry lock && \
     poetry install --no-interaction --no-ansi --no-root
 
-# Copy application code
-COPY . .
-
 # Install the project
 RUN poetry install --no-interaction --no-ansi
 
@@ -30,4 +27,4 @@ RUN poetry install --no-interaction --no-ansi
 EXPOSE 8000
 
 # Command to run the application
-CMD ["poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"] 
+CMD ["poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

@@ -36,4 +36,4 @@ services:
         condition: on-failure
 
 volumes:
-  mysql_data: 
+  mysql_data:

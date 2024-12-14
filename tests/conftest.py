@@ -1,12 +1,13 @@
-import pytest
 from typing import AsyncGenerator, Generator
+
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
-from app.core.database import Base, get_db
 from app.core.config import Settings, get_settings
+from app.core.database import Base, get_db
 from app.main import app
 from app.models.sensor import Sensor  # Import models to ensure they're registered
 
