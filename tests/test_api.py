@@ -40,6 +40,7 @@ def test_get_latest_readings():
             reading = data[0]
             assert "temperatura" in reading
             assert "ritmo_cardiaco" in reading
+            assert "indice_facial" in reading
             assert "timestamp" in reading
 
 
