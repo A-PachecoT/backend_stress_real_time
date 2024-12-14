@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 import asyncio
-import aiomysql
 import os
 import sys
 from pathlib import Path
+
+import aiomysql
 
 # Add the project root directory to Python path
 project_root = str(Path(__file__).parent.parent)

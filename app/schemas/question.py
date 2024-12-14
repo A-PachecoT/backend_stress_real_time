@@ -1,10 +1,8 @@
-from typing import Annotated
-from pydantic import BaseModel, Field
-from pydantic.types import conint
 from datetime import datetime
-from typing import List
+from typing import Annotated, List
 
 from pydantic import BaseModel, Field, conint
+from pydantic.types import conint
 
 
 class QuestionResponse(BaseModel):

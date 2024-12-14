@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.endpoints import auth, questions, results, sensors, users
+from app.api.endpoints import auth, questionnaire, questions, results, sensors, users
 
 
 @asynccontextmanager
@@ -39,6 +39,7 @@ app.include_router(sensors.router)
 app.include_router(questions.router)
 app.include_router(results.router)
 app.include_router(users.router)
+app.include_router(questionnaire.router)
 
 
 @app.get("/")
