@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     DB_HOST: str = "stress-prueba1.cna4icyokmxm.us-east-2.rds.amazonaws.com"
     DB_USER: str = "admin1"
     DB_PASSWORD: str = "stressminderprueba1"
-    DB_NAME: str = "sensores_db"
+    DB_NAME: str = "almacenamiento"
     DB_PORT: int = 3306
 
     # API Settings

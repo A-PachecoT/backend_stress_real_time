@@ -13,5 +13,14 @@ services:
       timeout: 10s
       retries: 3
 
+  test:
+    build: .
+    volumes:
+      - .:/app
+    environment:
+      - ENVIRONMENT=test
+    depends_on:
+      - api
+
 volumes:
   mysql_data: 

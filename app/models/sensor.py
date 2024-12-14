@@ -9,4 +9,5 @@ class Sensor(Base):
     id = Column(Integer, primary_key=True, index=True)
     temperatura = Column(Float)
     ritmo_cardiaco = Column(Float)
+    indice_facial = Column(Float, nullable=True)
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
