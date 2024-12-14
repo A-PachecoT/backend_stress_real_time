@@ -64,13 +64,11 @@ async def check_connection():
                 print("\n=== Tables in Database ===")
                 for table in tables:
                     print(f"- {table[0]}")
-                    # If it's the sensors table, show its structure
-                    if table[0] == "sensores":
-                        await cur.execute(f"DESCRIBE {table[0]}")
-                        columns = await cur.fetchall()
-                        print("\n  Table Structure:")
-                        for col in columns:
-                            print(f"  - {col[0]}: {col[1]}")
+                    await cur.execute(f"DESCRIBE {table[0]}")
+                    columns = await cur.fetchall()
+                    print("\n  Table Structure:")
+                    for col in columns:
+                        print(f"  - {col[0]}: {col[1]}")
 
         except Exception as e:
             print(f"\n❌ Failed to connect to database '{settings.DB_NAME}'")
