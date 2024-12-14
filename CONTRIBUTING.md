@@ -40,7 +40,7 @@ ENVIRONMENT=development
 DEBUG=true
 
 # Database
-DATABASE_URL=mysql://user:password@localhost:3306/sensores_db
+DATABASE_URL=mysql://user:password@localhost:3306/almacenamiento
 DB_USER=user
 DB_PASSWORD=password
 DB_ROOT_PASSWORD=rootpassword
