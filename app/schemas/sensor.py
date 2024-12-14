@@ -5,10 +5,9 @@ from pydantic import BaseModel, Field
 
 
 class SensorBase(BaseModel):
-    temperatura: float = Field(
-        ..., description="Temperature in Celsius", ge=35.0, le=42.0
-    )
-    ritmo_cardiaco: float = Field(..., description="Heart rate in BPM", ge=40, le=200)
+    temperatura: float = Field(..., description="Temperatura en grados Celsius")
+    ritmo_cardiaco: float = Field(..., description="Ritmo cardiaco en BPM")
+    indice_facial: Optional[float] = Field(None, description="Índice facial")
 
 
 class SensorCreate(SensorBase):

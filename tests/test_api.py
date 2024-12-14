@@ -15,12 +15,17 @@ def test_read_root():
 
 def test_create_sensor_reading():
     """Test sensor data creation"""
-    sensor_data = {"temperatura": 36.5, "ritmo_cardiaco": 85}
+    sensor_data = {
+        "temperatura": 36.5,
+        "ritmo_cardiaco": 85,
+        "indice_facial": 0.75,  # Optional field
+    }
     response = client.post("/api/v1/sensors/", json=sensor_data)
     assert response.status_code == 201
     data = response.json()
     assert data["temperatura"] == sensor_data["temperatura"]
     assert data["ritmo_cardiaco"] == sensor_data["ritmo_cardiaco"]
+    assert data["indice_facial"] == sensor_data["indice_facial"]
     assert "id" in data
     assert "timestamp" in data
 
@@ -36,6 +41,7 @@ def test_get_latest_readings():
             reading = data[0]
             assert "temperatura" in reading
             assert "ritmo_cardiaco" in reading
+            assert "indice_facial" in reading
             assert "timestamp" in reading
 
 
