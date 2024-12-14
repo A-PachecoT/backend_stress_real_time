@@ -1,3 +1,6 @@
+from typing import Annotated
+from pydantic import BaseModel, Field
+from pydantic.types import conint
 from datetime import datetime
 from typing import List
 
@@ -5,10 +8,10 @@ from pydantic import BaseModel, Field, conint
 
 
 class QuestionResponse(BaseModel):
-    question_number: conint(ge=1, le=10) = Field(
+    question_number: Annotated[int, conint(ge=1, le=10)] = Field(
         ..., description="Question number (1-10)"
     )
-    answer_value: conint(ge=0, le=4) = Field(
+    answer_value: Annotated[int, conint(ge=0, le=4)] = Field(
         ..., description="Answer value (0-4: nunca-siempre)"
     )
 
