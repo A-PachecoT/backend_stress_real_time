@@ -1,124 +1,112 @@
-from typing import List, Tuple, Dict
+from typing import List, Dict
 from datetime import datetime
 
 
 class CalculationService:
-    # Constants from the scripts
-    PSS10_INVERSE_QUESTIONS = [4, 5, 7, 8, 10]  # 1-based indices
+    # Updated weights and ranges based on new requirements
     WEIGHTS = {
-        "pss10": 0.3,
-        "heart_rate": 0.25,
-        "temperature": 0.2,
-        "angular_velocity": 0.15,
-        "facial": 0.1,
+        "temperatura": 0.1,
+        "ritmo_cardiaco": 0.1,
+        "indice_facial": 0.4,
+        "indice_preguntas": 0.4,
     }
-    LIMITS = {
-        "heart_rate": (50, 120),
-        "temperature": (35.0, 38.0),
-        "angular_velocity": (0.0, 0.2),
+
+    RANGES = {
+        "temperatura": (35, 42),
+        "ritmo_cardiaco": (60, 100),
+        "indice_facial": (0, 1),  # Already normalized
+        "indice_preguntas": (0, 40),
     }
 
     @staticmethod
     def normalize(value: float, min_val: float, max_val: float) -> float:
         """Normalize a value between 0 and 1"""
+        if min_val == max_val:  # To avoid division by zero
+            return 0
         return (value - min_val) / (max_val - min_val)
+
+    @classmethod
+    def calculate_weighted_average(cls, values: List[float]) -> float:
+        """
+        Calculate the weighted average of normalized values.
+
+        :param values: List of values in order [temperature, heart_rate, facial_index, questions_index]
+        :return: Weighted average as a percentage
+        """
+        if len(values) != 4:
+            raise ValueError(
+                "Expected 4 values: temperature, heart_rate, facial_index, questions_index"
+            )
+
+        # Normalize values
+        normalized_values = []
+        for value, (param_name, (min_val, max_val)) in zip(values, cls.RANGES.items()):
+            normalized_value = cls.normalize(value, min_val, max_val)
+            normalized_values.append(normalized_value)
+
+        # Calculate weighted average
+        weighted_sum = sum(
+            normalized_value * weight
+            for normalized_value, weight in zip(normalized_values, cls.WEIGHTS.values())
+        )
+
+        # Convert to percentage
+        return weighted_sum * 100
 
     @classmethod
     def calculate_pss10(cls, responses: List[int]) -> int:
         """Calculate PSS-10 score from responses"""
         if len(responses) != 10:
             raise ValueError("PSS-10 requires exactly 10 responses")
-
-        total = 0
-        for i, response in enumerate(
-            responses, start=1
-        ):  # Start from 1 for 1-based indexing
-            if i in cls.PSS10_INVERSE_QUESTIONS:
-                total += 4 - response  # Inverse scoring (4 becomes 0, 0 becomes 4)
-            else:
-                total += response
-        return total
+        return sum(responses)  # Simple sum as per new requirements
 
     @classmethod
-    def calculate_stress_level(cls, pss10_score: int) -> str:
-        """Interpret PSS-10 score"""
-        if pss10_score <= 13:
+    def calculate_stress_level(cls, stress_percentage: float) -> str:
+        """Interpret stress level based on percentage"""
+        if stress_percentage <= 33:
             return "Bajo"
-        elif pss10_score <= 26:
+        elif stress_percentage <= 66:
             return "Moderado"
         else:
             return "Alto"
-
-    @classmethod
-    def calculate_partial_index(
-        cls,
-        heart_rate: float,
-        temperature: float,
-        angular_velocity: float = 0.0,
-        facial_result: float = 0.0,
-        pss10_response: int = None,
-    ) -> float:
-        """Calculate partial stress index (IP)"""
-        # Normalize physiological parameters
-        hr_norm = cls.normalize(heart_rate, *cls.LIMITS["heart_rate"])
-        temp_norm = cls.normalize(temperature, *cls.LIMITS["temperature"])
-
-        # Base calculation with required parameters
-        ip = (
-            cls.WEIGHTS["heart_rate"] * hr_norm + cls.WEIGHTS["temperature"] * temp_norm
-        )
-
-        # Add optional parameters if provided
-        if angular_velocity is not None:
-            ang_norm = cls.normalize(angular_velocity, *cls.LIMITS["angular_velocity"])
-            ip += cls.WEIGHTS["angular_velocity"] * ang_norm
-
-        if facial_result is not None:
-            ip += cls.WEIGHTS["facial"] * facial_result
-
-        if pss10_response is not None:
-            pss10_norm = pss10_response / 40  # Normalize PSS-10 score (max 40)
-            ip += cls.WEIGHTS["pss10"] * pss10_norm
-
-        return ip
-
-    @classmethod
-    def calculate_total_stress_index(cls, partial_indices: List[float]) -> float:
-        """Calculate total stress index (ITE)"""
-        if not partial_indices:
-            return 0.0
-        return sum(partial_indices) / len(partial_indices)
 
     @classmethod
     async def get_stress_analysis(
         cls, sensor_data: List[Dict], pss10_responses: List[int] = None
     ) -> Dict:
         """Get complete stress analysis including PSS-10 and sensor data"""
-
         # Calculate PSS-10 score if responses provided
-        pss10_score = None
-        stress_level = None
-        if pss10_responses and len(pss10_responses) == 10:
-            pss10_score = cls.calculate_pss10(pss10_responses)
-            stress_level = cls.calculate_stress_level(pss10_score)
+        questions_index = cls.calculate_pss10(pss10_responses) if pss10_responses else 0
 
-        # Calculate partial indices from sensor data
-        partial_indices = []
-        for data in sensor_data:
-            ip = cls.calculate_partial_index(
-                heart_rate=data["ritmo_cardiaco"],
-                temperature=data["temperatura"],
-                pss10_response=pss10_score if pss10_score else None,
-            )
-            partial_indices.append(ip)
+        # Process latest sensor reading
+        latest_reading = sensor_data[-1] if sensor_data else None
+        if not latest_reading:
+            raise ValueError("No sensor data available")
 
-        # Calculate total stress index
-        ite = cls.calculate_total_stress_index(partial_indices)
+        # Prepare values for weighted average
+        values = [
+            latest_reading["temperatura"],
+            latest_reading["ritmo_cardiaco"],
+            latest_reading.get("indice_facial", 0),  # Default to 0 if not present
+            questions_index,
+        ]
+
+        # Calculate stress percentage
+        stress_percentage = cls.calculate_weighted_average(values)
+        stress_level = cls.calculate_stress_level(stress_percentage)
 
         return {
             "timestamp": datetime.now(),
-            "total_stress_index": ite,
-            "pss10_score": pss10_score,
+            "stress_percentage": stress_percentage,
             "stress_level": stress_level,
-            "partial_indices": partial_indices,
+            "normalized_values": {
+                "temperatura": cls.normalize(values[0], *cls.RANGES["temperatura"]),
+                "ritmo_cardiaco": cls.normalize(
+                    values[1], *cls.RANGES["ritmo_cardiaco"]
+                ),
+                "indice_facial": values[2],  # Already normalized
+                "indice_preguntas": cls.normalize(
+                    values[3], *cls.RANGES["indice_preguntas"]
+                ),
+            },
         }
