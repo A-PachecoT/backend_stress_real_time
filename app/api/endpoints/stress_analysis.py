@@ -19,19 +19,20 @@ router = APIRouter(prefix="/api/v1/stress", tags=["stress"])
 async def get_stress_analysis(
     current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
 ):
-    """Get stress analysis combining sensor data and questionnaire responses"""
+    """Get stress analysis combining latest sensor data and questionnaire responses"""
 
-    # Get latest sensor data
+    # Get latest sensor data from 'sensores' table
     sensor_query = select(Sensor).order_by(Sensor.timestamp.desc()).limit(1)
     sensor_result = await db.execute(sensor_query)
     latest_sensor = sensor_result.scalar_one_or_none()
 
     if not latest_sensor:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="No sensor data available"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No hay datos de sensores disponibles. Por favor, asegúrese de que los sensores estén funcionando.",
         )
 
-    # Get questionnaire responses
+    # Get user's questionnaire responses
     responses_query = (
         select(QuestionResponse)
         .where(QuestionResponse.user_id == current_user.id)
@@ -43,10 +44,10 @@ async def get_stress_analysis(
     if not responses:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="No questionnaire responses available",
+            detail="No ha completado el cuestionario. Por favor, complete el cuestionario primero.",
         )
 
-    # Prepare data for calculation
+    # Prepare sensor data for calculation
     sensor_data = [
         {
             "temperatura": latest_sensor.temperatura,
@@ -55,6 +56,7 @@ async def get_stress_analysis(
         }
     ]
 
+    # Get questionnaire responses values
     pss10_responses = [r.answer_value for r in responses]
 
     # Calculate stress analysis
@@ -69,4 +71,7 @@ async def get_stress_analysis(
         }
 
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Error al calcular el nivel de estrés: {str(e)}",
+        )
