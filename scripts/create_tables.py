@@ -6,6 +6,10 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
+DROP_QUESTION_RESPONSES_TABLE = """
+DROP TABLE IF EXISTS question_responses;
+"""
+
 DROP_USERS_TABLE = """
 DROP TABLE IF EXISTS users;
 """
@@ -29,6 +33,19 @@ CREATE TABLE IF NOT EXISTS users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 """
 
+CREATE_QUESTION_RESPONSES_TABLE = """
+CREATE TABLE IF NOT EXISTS question_responses (
+    id INTEGER NOT NULL AUTO_INCREMENT,
+    user_id INTEGER NOT NULL,
+    question_number INTEGER NOT NULL,
+    answer_value INTEGER NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_user_question (user_id, question_number)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+"""
+
 
 async def recreate_tables():
     conn = await aiomysql.connect(
@@ -41,14 +58,20 @@ async def recreate_tables():
 
     async with conn.cursor() as cur:
         try:
-            # Drop existing table
+            # Drop existing tables (in correct order due to foreign key)
+            await cur.execute(DROP_QUESTION_RESPONSES_TABLE)
+            print("🗑️ Question responses table dropped successfully!")
+
             await cur.execute(DROP_USERS_TABLE)
             print("🗑️ Users table dropped successfully!")
 
-            # Create new table
+            # Create tables (in correct order for foreign keys)
             await cur.execute(CREATE_USERS_TABLE)
-            await conn.commit()
             print("✅ Users table created successfully!")
+
+            await cur.execute(CREATE_QUESTION_RESPONSES_TABLE)
+            await conn.commit()
+            print("✅ Question responses table created successfully!")
         except Exception as e:
             print(f"❌ Error recreating tables: {e}")
         finally:

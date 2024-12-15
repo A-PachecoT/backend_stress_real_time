@@ -29,3 +29,8 @@ class StressAnalysis(BaseModel):
                 "partial_indices": [0.58, 0.62, 0.70, 0.65],
             }
         }
+
+
+class StressAnalysisResponse(BaseModel):
+    stress_percentage: float = Field(..., ge=0, le=100)
+    description: str
